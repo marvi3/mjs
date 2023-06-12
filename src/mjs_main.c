@@ -40,9 +40,14 @@ int main(int argc, char *argv[]) {
       printf("  -l level     - Set debug level, from 0 to 5\n");
       return EXIT_SUCCESS;
     } else if (strcmp(argv[i], "-i") == 0 && i + 3 < argc) {
-      printf("ForkLoop!\n");
-      char *testdata = fork_loop((int)argv[++i], (int)argv[++i], argv[++i]);
+      // printf("ForkLoop now!\n");
+      // printf("Arguments: %s %s %s %s\n", argv[i++], argv[i++], argv[i++], argv[i++]);
+      char *testdata = fork_loop(atoi(argv[++i]), atoi(argv[++i]), argv[++i]);
+      // printf("mjs: %s\n", testdata);
       err = mjs_exec(mjs, testdata, &res);
+      int test[1];
+      test[2] = 3;
+      printf(test[2]);
     } else {
       fprintf(stderr, "Unknown flag: [%s]\n", argv[i]);
       return EXIT_FAILURE;
@@ -50,6 +55,7 @@ int main(int argc, char *argv[]) {
   }
   for (; i < argc && err == MJS_OK; i++) {
     err = mjs_exec_file(mjs, argv[i], &res);
+    printf("Test5\n");
   }
 
   if (err == MJS_OK) {

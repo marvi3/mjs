@@ -4,7 +4,7 @@ BUILD_DIR = build
 
 RD ?= docker run -v $(CURDIR):$(CURDIR) --user=$(shell id -u):$(shell id -g) -w $(CURDIR)
 DOCKER_GCC ?= afl-gcc-fast
-DOCKER_CLANG ?= afl-clang-fast
+DOCKER_CLANG ?= clang
 
 include $(SRCPATH)/mjs_sources.mk
 
@@ -13,7 +13,7 @@ TOP_MJS_PUBLIC_HEADERS = $(addprefix $(SRCPATH)/, $(MJS_PUBLIC_HEADERS))
 TOP_MJS_SOURCES = $(addprefix $(SRCPATH)/, $(MJS_SOURCES))
 TOP_COMMON_SOURCES = $(addprefix $(SRCPATH)/, $(COMMON_SOURCES))
 
-CFLAGS_EXTRA ?=
+CFLAGS_EXTRA ?= -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer 
 MFLAGS += -I. -Isrc -Isrc/frozen
 MFLAGS += -DMJS_MAIN -DMJS_EXPOSE_PRIVATE -DCS_ENABLE_STDIO -DMJS_ENABLE_DEBUG -I../frozen
 MFLAGS += $(CFLAGS_EXTRA)

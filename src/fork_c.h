@@ -2,6 +2,6 @@
 #include <wait.h>
 #include <stdint.h>
 #include <sys/mman.h>
-#include "shmget_c.h"
+#include "shared_memory/mmap_c.h"
 
 const char* fork_loop(int numForks, int arrayLength, char fileName[]);

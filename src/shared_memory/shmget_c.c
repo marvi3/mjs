@@ -33,6 +33,7 @@ bool detach(int i, struct shmget memory) {
 
 bool add(int index, char str[], struct shmget memory) {
     // sanity check if the element would write out of memory bounds.
+    printf("Size of string in c shmget add: " + sizeof(str));
     if (index >= memory.numElem || sizeof(str) >= memory.size)
     {
         return false;

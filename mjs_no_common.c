@@ -1982,31 +1982,26 @@ mjs_parse(const char *path, const char *buf, struct mjs *);
 
 #endif /* MJS_PARSER_H */
 #ifdef MJS_MODULE_LINES
-#line 1 "src/shmget_c.h"
+#line 1 "src/shared_memory/mmap_c.h"
 #endif
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <stdio.h>
+#include <unistd.h>
+#include <wait.h>
+#include <stdint.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-
-struct shmget {  
-    key_t key;
-    int shmid;
-    char* shared_mem;
-    int numElem;
-    int size;
-    int IPC_RESULT_ERROR;
-};
-
-struct shmget create(int numChar, int arrayLen, char filename[]);
-void removeMemory(struct shmget element);
-bool detach(int i, struct shmget memory);
-bool add(int index, char str[], struct shmget memory);
-bool addAll(char *list[], struct shmget memory);
-bool addAllSoft(char *list[], struct shmget memory);
-const char *get(int index, struct shmget memory);
+int create_fileDescriptor(char *filename);
+void *shared_mmap_fd(int len, int fileDescriptor);
+void *shared_mmap(int len);
+bool close_mmap(int fd, char *filename);
+bool write_string_si(char *shared_mem, int shared_len, int startIndex, char *str);
+bool write_string(char *shared_mem, int shared_len, char *str);
+bool addAllSoft(char *shared_mem, int shared_len, int segLength, int startIndex, char *list[]);
+char *get(char *shared_mem, int index, int segLength);
 #ifdef MJS_MODULE_LINES
 #line 1 "src/fork_c.h"
 #endif
@@ -2014,7 +2009,7 @@ const char *get(int index, struct shmget memory);
 #include <wait.h>
 #include <stdint.h>
 #include <sys/mman.h>
-/* Amalgamated: #include "shmget_c.h" */
+/* Amalgamated: #include "shared_memory/mmap_c.h" */
 
 const char* fork_loop(int numForks, int arrayLength, char fileName[]);
 #ifdef MJS_MODULE_LINES
@@ -7141,9 +7136,14 @@ int main(int argc, char *argv[]) {
       printf("  -l level     - Set debug level, from 0 to 5\n");
       return EXIT_SUCCESS;
     } else if (strcmp(argv[i], "-i") == 0 && i + 3 < argc) {
-      printf("ForkLoop!\n");
-      char *testdata = fork_loop((int)argv[++i], (int)argv[++i], argv[++i]);
+      // printf("ForkLoop now!\n");
+      // printf("Arguments: %s %s %s %s\n", argv[i++], argv[i++], argv[i++], argv[i++]);
+      char *testdata = fork_loop(atoi(argv[++i]), atoi(argv[++i]), argv[++i]);
+      // printf("mjs: %s\n", testdata);
       err = mjs_exec(mjs, testdata, &res);
+      int test[1];
+      test[2] = 3;
+      printf(test[2]);
     } else {
       fprintf(stderr, "Unknown flag: [%s]\n", argv[i]);
       return EXIT_FAILURE;
@@ -7151,6 +7151,7 @@ int main(int argc, char *argv[]) {
   }
   for (; i < argc && err == MJS_OK; i++) {
     err = mjs_exec_file(mjs, argv[i], &res);
+    printf("Test5\n");
   }
 
   if (err == MJS_OK) {
